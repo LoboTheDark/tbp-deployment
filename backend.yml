@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbp-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tbp-backend
+  template:
+    metadata:
+      labels:
+        app: tbp-backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/lobothedark/tbp-backend:latest
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbp-backend
+spec:
+  selector:
+    app: tbp-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
