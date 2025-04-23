@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbp-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tbp-frontend
+  template:
+    metadata:
+      labels:
+        app: tbp-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/lobothedark/tbp-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbp-frontend
+spec:
+  selector:
+    app: tbp-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
