@@ -26,7 +26,8 @@ spec:
   selector:
     app: tbp-backend
   ports:
-    - protocol: TCP
+    - name: http
       port: 80
-      targetPort: 8080
+      targetPort: 80
+      nodePort: 31001
   type: LoadBalancer
