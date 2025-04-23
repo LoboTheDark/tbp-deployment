@@ -26,7 +26,8 @@ spec:
   selector:
     app: tbp-frontend
   ports:
-    - protocol: TCP
+    - name: http
       port: 80
       targetPort: 80
+      nodePort: 31000
   type: LoadBalancer
