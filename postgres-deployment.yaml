@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbp-auth-db
+  labels:
+    app: tbp-auth-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tbp-auth-db
+  template:
+    metadata:
+      labels:
+        app: tbp-auth-db
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "k8s-tbp-auth"
+        vault.hashicorp.com/agent-inject-secret-db-password: "secret/data/tbp/postgres"
+        vault.hashicorp.com/agent-inject-template-db-password: |
+          {{- with secret "secret/data/tbp/postgres" -}}
+          POSTGRES_PASSWORD={{ .Data.data.password }}
+          {{- end }}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17.4
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "tbp_user"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD_FILE
+              value: "/vault/secrets/db-password"
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+            - name: vault-secrets
+              mountPath: /vault/secrets
+              readOnly: true
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "authadmin"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: vault-secrets
+          emptyDir: {}
