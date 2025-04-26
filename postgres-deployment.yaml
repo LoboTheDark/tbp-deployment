@@ -32,8 +32,8 @@ spec:
               value: "tbp_user"
             - name: POSTGRES_USER
               value: "postgres"
-            - name: POSTGRES_PASSWORD_FILE
-              value: "/vault/secrets/db-password"
+            - name: POSTGRES_PASSWORD
+              value: "i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R"
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
