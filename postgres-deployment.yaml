@@ -1,53 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tbp-auth-db
-  labels:
-    app: tbp-auth-db
+  name: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tbp-auth-db
+      app: postgres
   template:
     metadata:
       labels:
-        app: tbp-auth-db
-      annotations:
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "k8s-tbp-auth"
-        vault.hashicorp.com/agent-inject-secret-db-password: "secret/data/tbp/postgres"
-        vault.hashicorp.com/agent-inject-template-db-password: |
-          {{- with secret "secret/data/tbp/postgres" -}}
-          POSTGRES_PASSWORD={{ .Data.data.password }}
-          {{- end }}
+        app: postgres
     spec:
       containers:
-        - name: postgres
-          image: postgres:17.4
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: "tbp_user"
-            - name: POSTGRES_USER
-              value: "postgres"
-            - name: POSTGRES_PASSWORD
-              value: "i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R"
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-            - name: vault-secrets
-              mountPath: /vault/secrets
-              readOnly: true
-          readinessProbe:
-            exec:
-              command: ["pg_isready", "-U", "postgres"]
-            initialDelaySeconds: 5
-            periodSeconds: 10
+      - name: postgres
+        image: postgres:17.4
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R"   # <--- Passwort direkt hier reinschreiben
+        - name: POSTGRES_DB
+          value: "tbp_user"
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-storage
       volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
-        - name: vault-secrets
-          emptyDir: {}
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
