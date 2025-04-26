@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  type: ClusterIP  # bedeutet: intern im Kubernetes Cluster erreichbar
+  selector:
+    app: postgres  # Das muss zu deinem Deployment-Label passen
+  ports:
+    - protocol: TCP
+      port: 5432   # Der Port, über den dein Auth-Backend zugreifen soll
+      targetPort: 5432  # Port innerhalb des Postgres-Containers
