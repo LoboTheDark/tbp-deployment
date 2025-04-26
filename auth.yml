@@ -17,6 +17,17 @@ spec:
           image: ghcr.io/lobothedark/tbp-auth:latest
           ports:
             - containerPort: 80
+          env:
+          - name: DB_HOST
+            value: "10.43.139.26"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_NAME
+            value: "tbp_user"
+          - name: DB_USER
+            value: "postgres"
+          - name: DB_PASSWORD:
+            value: "i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R"
 ---
 apiVersion: v1
 kind: Service
