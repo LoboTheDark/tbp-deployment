@@ -42,7 +42,7 @@ spec:
               readOnly: true
           readinessProbe:
             exec:
-              command: ["pg_isready", "-U", "authadmin"]
+              command: ["pg_isready", "-U", "postgres"]
             initialDelaySeconds: 5
             periodSeconds: 10
       volumes:
