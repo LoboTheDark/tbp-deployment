@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbp-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tbp-auth
+  template:
+    metadata:
+      labels:
+        app: tbp-auth
+    spec:
+      containers:
+        - name: auth
+          image: ghcr.io/lobothedark/tbp-auth:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbp-auth
+spec:
+  selector:
+    app: tbp-auth
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 31002
+  type: LoadBalancer
