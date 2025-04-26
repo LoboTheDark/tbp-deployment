@@ -9,6 +9,9 @@
 - apply all yml files:
   - kubectl apply -f backend.yml
   - kubectl apply -f frontend.yml
+  - kubectl apply -f postgres-pvc.yaml
+  - kubectl apply -f postgres-deployment.yaml
+  - kubectl apply -f auth.yml
 
 - check if pods and srv are running
   - kubectl get pods
@@ -19,5 +22,6 @@
  
 - If everything works, connect to frontend via http://192.168.86.49:8080/
 
-
+- Postgres files are saved in hostsystem here:
+  - /var/lib/rancher/k3s/storage/
   
