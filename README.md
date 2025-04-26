@@ -11,6 +11,7 @@
   - kubectl apply -f frontend.yml
   - kubectl apply -f postgres-pvc.yaml
   - kubectl apply -f postgres-deployment.yaml
+  - kubectl apply -f postgres-service.yaml
   - kubectl apply -f auth.yml
 
 - check if pods and srv are running
