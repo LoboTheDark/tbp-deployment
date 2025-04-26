@@ -18,6 +18,8 @@ spec:
           ports:
             - containerPort: 80
           env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: "prod"
           - name: DB_HOST
             value: "10.43.139.26"
           - name: DB_PORT
