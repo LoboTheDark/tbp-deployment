@@ -26,7 +26,7 @@ spec:
             value: "tbp_user"
           - name: DB_USER
             value: "postgres"
-          - name: DB_PASSWORD:
+          - name: DB_PASSWORD
             value: "i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R"
 ---
 apiVersion: v1
