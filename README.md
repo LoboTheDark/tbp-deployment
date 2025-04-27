@@ -56,8 +56,8 @@ tbp-cluster-stack/
 
 - Some commands
   - helm dependency update ./tbp-cluster-stack
-  - helm install my-stack ./tbp-cluster-stack
-  - helm uninstall my-stack
+  - helm install tbp-stack ./tbp-cluster-stack
+  - helm uninstall tbp-stack
   - helm upgrade tbp-stack ./tbp-cluster-stack
 
 
