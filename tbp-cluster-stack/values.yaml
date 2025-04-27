@@ -55,7 +55,7 @@ kube-prometheus-stack:
 loki-stack:
   promtail:
     enabled: true
-   service:
+  service:
     type: NodePort
     nodePort: 31000
 
