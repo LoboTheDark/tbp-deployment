@@ -74,6 +74,13 @@ kube-prometheus-stack:
     # Disable Ingress in the Prometheus sub-chart itself
     ingress:
       enabled: false # <-- Important!    
+  loki: # <--- Dies konfiguriert die Loki-Komponente INNERHALB des kube-prometheus-stack Charts
+    service:
+      type: ClusterIP
+    # Konfiguration der Loki Datenquelle für Grafana Provisioning
+    datasource: # <--- Füge DIESEN Abschnitt hinzu
+      enabled: true # Stelle sicher, dass das Provisioning aktiviert ist (oft Default wenn loki.enabled=true)
+      isDefault: false # <--- SETZE DIES AUF FALSE, um den Konflikt zu lösen    
 loki-stack:
   promtail:
     enabled: true
