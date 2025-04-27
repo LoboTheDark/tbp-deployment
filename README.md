@@ -4,8 +4,9 @@
 - create cluster: k3d cluster create tbp-cluster \
   --api-port 192.168.86.49:6445 \
   --k3s-arg "--tls-san=192.168.86.49@server:0" \
-  -p "8080:31000@loadbalancer" \
-  -p "8081:31001@loadbalancer"
+  -p "80:80@loadbalancer" \
+  -p "443:443@loadbalancer"
+  
 - apply all yml files:
   - kubectl apply -f backend.yml
   - kubectl apply -f frontend.yml
