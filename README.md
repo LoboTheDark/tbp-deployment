@@ -59,7 +59,7 @@ tbp-cluster-stack/
   - helm install tbp-stack ./tbp-cluster-stack
   - helm uninstall tbp-stack
   - helm upgrade tbp-stack ./tbp-cluster-stack
-
+    - helm upgrade tbp-stack ./tbp-cluster-stack -f tbp-cluster-stack/values.yaml
 
 # Change hosts file
 - C:\Windows\System32\drivers\etc\hosts
