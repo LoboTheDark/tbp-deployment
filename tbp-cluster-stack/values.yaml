@@ -125,6 +125,6 @@ tempo: # <--- NEW: Top-level key for Tempo Ingress Configuration
 # ---------------------------
 ingress-nginx:
   controller:
-    hostNetwork: true
+    hostNetwork: false
     service:
       type: ClusterIP
