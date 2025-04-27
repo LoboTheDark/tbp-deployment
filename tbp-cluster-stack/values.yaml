@@ -63,6 +63,9 @@ kube-prometheus-stack:
     # Disable Ingress in the Grafana sub-chart itself if the parent chart creates it
     ingress:
       enabled: false # <-- Important!
+    grafanaIni:
+      server:
+        serve_from_sub_path: false
   prometheus:
     service:
       type: ClusterIP
@@ -70,8 +73,7 @@ kube-prometheus-stack:
       serviceMonitorSelectorNilUsesHelmValues: false
     # Disable Ingress in the Prometheus sub-chart itself
     ingress:
-      enabled: false # <-- Important!
-
+      enabled: false # <-- Important!    
 loki-stack:
   promtail:
     enabled: true
