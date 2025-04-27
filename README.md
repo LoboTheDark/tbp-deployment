@@ -4,6 +4,8 @@
 - create cluster: 
   - k3d cluster create tbp-cluster --api-port 192.168.86.49:6445 --k3s-arg "--tls-san=192.168.86.49@server:0" -p "8080:80@loadbalancer" -p "8443:443@loadbalancer"
   - 8080 and 8443 because if it runs on my homeserver port 80 is taken by casaOS
+  - Auf windows pc mit docker desktop
+    - k3d cluster create tbp-cluster -p "80:80@loadbalancer" -p "443:443@loadbalancer"
   - Take config for Lens to connect to cluster
     - k3d kubeconfig get tbp-cluster
     
