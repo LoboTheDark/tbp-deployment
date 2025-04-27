@@ -45,13 +45,23 @@ kube-prometheus-stack:
       type: NodePort
       nodePort: 30001
   prometheus:
+    service:
+      type: NodePort
+      nodePort: 30002
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
+      
 
 loki-stack:
   promtail:
     enabled: true
+   service:
+    type: NodePort
+    nodePort: 31000
 
 tempo:
   metricsGenerator:
     enabled: true
+  service:
+    type: NodePort
+    nodePort: 32000
