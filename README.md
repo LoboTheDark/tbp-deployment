@@ -26,3 +26,19 @@
 - Postgres files are saved in hostsystem here:
   - /var/lib/rancher/k3s/storage/
   
+# HELM chart for entire deployment
+tbp-cluster-stack/
+├── Chart.yaml
+├── values.yaml
+├── charts/            # populated via `helm dependency update`
+├── templates/
+│   ├── backend-deployment.yaml
+│   ├── backend-service.yaml
+│   ├── frontend-deployment.yaml
+│   ├── frontend-service.yaml
+│   ├── auth-deployment.yaml
+│   ├── auth-service.yaml
+│   ├── postgres-deployment.yaml
+│   ├── postgres-pvc.yaml
+│   ├── postgres-service.yaml
+│   └── _helpers.tpl    # optional helpers

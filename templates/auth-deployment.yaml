@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbp-auth
+  labels:
+    app: tbp-auth
+spec:
+  replicas: {{ .Values.auth.replicas }}
+  selector:
+    matchLabels:
+      app: tbp-auth
+  template:
+    metadata:
+      labels:
+        app: tbp-auth
+    spec:
+      containers:
+        - name: auth
+          image: "{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag }}"
+          ports:
+            - containerPort: 80
+          env:
+            {{- range $key, $value := .Values.auth.env }}
+            - name: {{ $key }}
+              value: "{{ $value }}"
+            {{- end }}

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbp-frontend
+spec:
+  type: LoadBalancer
+  selector:
+    app: tbp-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      nodePort: 31000

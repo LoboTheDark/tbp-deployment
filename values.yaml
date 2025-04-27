@@ -1,0 +1,57 @@
+# values.yaml
+
+# ---------------------------
+# TBP Applications
+# ---------------------------
+backend:
+  image:
+    repository: ghcr.io/lobothedark/tbp-backend
+    tag: latest
+  replicas: 1
+
+frontend:
+  image:
+    repository: ghcr.io/lobothedark/tbp-frontend
+    tag: latest
+  replicas: 1
+
+auth:
+  image:
+    repository: ghcr.io/lobothedark/tbp-auth
+    tag: latest
+  replicas: 1
+  env:
+    SPRING_PROFILES_ACTIVE: prod
+    DB_HOST: postgres
+    DB_PORT: "5432"
+    DB_NAME: tbp_user
+    DB_USER: postgres
+    DB_PASSWORD: "i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R"
+
+postgres:
+  image:
+    repository: postgres
+    tag: 17.4
+  pvc:
+    storage: 5Gi
+
+# ---------------------------
+# Monitoring Dependencies
+# ---------------------------
+kube-prometheus-stack:
+  grafana:
+    adminPassword: "changeme"
+    service:
+      type: NodePort
+      nodePort: 30001
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+
+loki-stack:
+  promtail:
+    enabled: true
+
+tempo:
+  metricsGenerator:
+    enabled: true
