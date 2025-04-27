@@ -42,3 +42,6 @@ tbp-cluster-stack/
 │   ├── postgres-pvc.yaml
 │   ├── postgres-service.yaml
 │   └── _helpers.tpl    # optional helpers
+
+helm dependency update ./tbp-cluster-stack
+helm install my-stack ./tbp-cluster-stack
