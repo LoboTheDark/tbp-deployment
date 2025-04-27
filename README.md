@@ -25,23 +25,38 @@
 
 - Postgres files are saved in hostsystem here:
   - /var/lib/rancher/k3s/storage/
+
   
 # HELM chart for entire deployment
+
+- install helm
+
+- helm repo add grafana https://grafana.github.io/helm-charts
+- helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+- helm repo update
+
 tbp-cluster-stack/
 ├── Chart.yaml
 ├── values.yaml
-├── charts/            # populated via `helm dependency update`
 ├── templates/
 │   ├── backend-deployment.yaml
-│   ├── backend-service.yaml
 │   ├── frontend-deployment.yaml
-│   ├── frontend-service.yaml
 │   ├── auth-deployment.yaml
-│   ├── auth-service.yaml
 │   ├── postgres-deployment.yaml
 │   ├── postgres-pvc.yaml
 │   ├── postgres-service.yaml
-│   └── _helpers.tpl    # optional helpers
+│   ├── ingress-grafana.yaml
+│   ├── ingress-prometheus.yaml
+│   ├── ingress-loki.yaml
+│   ├── ingress-tempo.yaml
+├── charts/
+    └── (automatically via helm dependcy update)
 
-helm dependency update ./tbp-cluster-stack
-helm install my-stack ./tbp-cluster-stack
+- Some commands
+  - helm dependency update ./tbp-cluster-stack
+  - helm install my-stack ./tbp-cluster-stack
+  - helm uninstall my-stack
+  - helm upgrade tbp-stack ./tbp-cluster-stack
+
+

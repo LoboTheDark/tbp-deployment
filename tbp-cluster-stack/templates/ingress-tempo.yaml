@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tempo-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "192.168.86.49"
+      http:
+        paths:
+          - path: /tempo(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: tbp-cluster-stack-tempo
+                port:
+                  number: 3200

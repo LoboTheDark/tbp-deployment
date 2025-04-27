@@ -42,26 +42,29 @@ kube-prometheus-stack:
   grafana:
     adminPassword: "changeme"
     service:
-      type: NodePort
-      nodePort: 30001
+      type: ClusterIP      
   prometheus:
     service:
-      type: NodePort
-      nodePort: 30002
+      type: ClusterIP
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
-      
-
 loki-stack:
   promtail:
     enabled: true
   service:
-    type: NodePort
-    nodePort: 30003
+    type: ClusterIP
 
 tempo:
   metricsGenerator:
     enabled: true
   service:
-    type: NodePort
-    nodePort: 30004
+    type: ClusterIP    
+    
+# ---------------------------
+# Ingress controller
+# ---------------------------
+ingress-nginx:
+  controller:
+    hostNetwork: true
+    service:
+      type: ClusterIP
