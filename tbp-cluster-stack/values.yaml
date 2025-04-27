@@ -43,22 +43,34 @@ kube-prometheus-stack:
     adminPassword: "changeme"
     service:
       type: ClusterIP      
+    ingress:
+      enabled: true # Stelle sicher, dass Ingress aktiviert ist
+      hostname: grafana.k3d.local # <-- Dein gewünschter DNS-Name
   prometheus:
     service:
       type: ClusterIP
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
+    ingress:
+      enabled: true # Stelle sicher, dass Ingress aktiviert ist
+      hostname: prometheus.k3d.local # <-- Dein gewünschter DNS-Name  
 loki-stack:
   promtail:
     enabled: true
   service:
     type: ClusterIP
+  ingress:
+    enabled: true # Stelle sicher, dass Ingress aktiviert ist
+    hostname: loki.k3d.local # <-- Dein gewünschter DNS-Name  
 
 tempo:
   metricsGenerator:
     enabled: true
   service:
     type: ClusterIP    
+  ingress:
+    enabled: true # Stelle sicher, dass Ingress aktiviert ist
+    hostname: tempo.k3d.local # <-- Dein gewünschter DNS-Name     
     
 # ---------------------------
 # Ingress controller

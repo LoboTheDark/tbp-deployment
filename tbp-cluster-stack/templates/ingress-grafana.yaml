@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: "192.168.86.49"
+    - host: {{ .Values.grafana.ingress.hostname | quote }}
       http:
         paths:
           - path: /grafana(/|$)(.*)
