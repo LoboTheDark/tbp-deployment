@@ -136,4 +136,4 @@ ingress-nginx:
   controller:
     hostNetwork: false
     service:
-      type: ClusterIP
+      type: LoadBalancer
