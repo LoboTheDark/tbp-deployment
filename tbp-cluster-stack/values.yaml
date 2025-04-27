@@ -57,11 +57,11 @@ loki-stack:
     enabled: true
   service:
     type: NodePort
-    nodePort: 31000
+    nodePort: 30003
 
 tempo:
   metricsGenerator:
     enabled: true
   service:
     type: NodePort
-    nodePort: 32000
+    nodePort: 30004
