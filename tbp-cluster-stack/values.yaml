@@ -1,19 +1,27 @@
-# values.yaml
+# values.yaml for the tbp-cluster-stack chart
 
 # ---------------------------
-# TBP Applications
+# TBP Applications (and their Ingress configuration in the parent chart)
 # ---------------------------
 backend:
   image:
     repository: ghcr.io/lobothedark/tbp-backend
     tag: latest
   replicas: 1
+  ingress: # <--- Ingress configuration for Backend
+    enabled: true
+    hostname: backend.k3d.local # <-- Example Hostname
+    # path: /backend(/|$)(.*) # Example Path, must match the template
 
 frontend:
   image:
     repository: ghcr.io/lobothedark/tbp-frontend
     tag: latest
   replicas: 1
+  ingress: # <--- Ingress configuration for Frontend
+    enabled: true
+    hostname: frontend.k3d.local # <-- Example Hostname
+    # path: / # Example Path (often root)
 
 auth:
   image:
@@ -27,6 +35,11 @@ auth:
     DB_NAME: tbp_user
     DB_USER: postgres
     DB_PASSWORD: "i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R"
+  ingress: # <--- Ingress configuration for Auth
+    enabled: true
+    hostname: auth.k3d.local # <-- Example Hostname
+    # path: /auth(/|$)(.*) # Example Path
+
 
 postgres:
   image:
@@ -34,44 +47,79 @@ postgres:
     tag: 17.4
   pvc:
     storage: 5Gi
+  # Postgres typically does not need external Ingress
 
 # ---------------------------
-# Monitoring Dependencies
+# Monitoring Dependencies (Configuration FOR the Sub-Charts)
+# These values are passed to the installed sub-charts.
+# The Ingress configuration for the sub-charts themselves should be
+# disabled here, as the parent chart creates its own Ingress resources.
 # ---------------------------
 kube-prometheus-stack:
   grafana:
     adminPassword: "changeme"
     service:
-      type: ClusterIP      
+      type: ClusterIP
+    # Disable Ingress in the Grafana sub-chart itself if the parent chart creates it
     ingress:
-      enabled: true # Stelle sicher, dass Ingress aktiviert ist
-      hostname: grafana.k3d.local # <-- Dein gewünschter DNS-Name
+      enabled: false # <-- Important!
   prometheus:
     service:
       type: ClusterIP
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
+    # Disable Ingress in the Prometheus sub-chart itself
     ingress:
-      enabled: true # Stelle sicher, dass Ingress aktiviert ist
-      hostname: prometheus.k3d.local # <-- Dein gewünschter DNS-Name  
+      enabled: false # <-- Important!
+
 loki-stack:
   promtail:
     enabled: true
   service:
     type: ClusterIP
+  # Disable Ingress in the Loki sub-chart itself
   ingress:
-    enabled: true # Stelle sicher, dass Ingress aktiviert ist
-    hostname: loki.k3d.local # <-- Dein gewünschter DNS-Name  
+    enabled: false # <-- Important!
 
 tempo:
   metricsGenerator:
     enabled: true
   service:
-    type: ClusterIP    
+    type: ClusterIP
+  # Disable Ingress in the Tempo sub-chart itself
   ingress:
-    enabled: true # Stelle sicher, dass Ingress aktiviert ist
-    hostname: tempo.k3d.local # <-- Dein gewünschter DNS-Name     
-    
+    enabled: false # <-- Important!
+
+
+# ---------------------------
+# Ingress Configuration for Monitoring Tools and Apps (in the Parent Chart)
+# These keys MUST exist for the Ingress Templates to be found
+# ---------------------------
+prometheus: # <--- NEW: Top-level key for Prometheus Ingress Configuration
+  ingress:
+    enabled: true
+    hostname: prometheus.k3d.local # <-- Your desired DNS name
+    # path: /prometheus # Optional, if the template uses it and you want to make it configurable
+
+grafana: # <--- NEW: Top-level key for Grafana Ingress Configuration
+  ingress:
+    enabled: true
+    hostname: grafana.k3d.local # <-- Your desired DNS name
+    # path: /grafana # Optional
+
+loki: # <--- NEW: Top-level key for Loki Ingress Configuration
+  ingress:
+    enabled: true
+    hostname: loki.k3d.local # <-- Your desired DNS name
+    # path: /loki # Optional
+
+tempo: # <--- NEW: Top-level key for Tempo Ingress Configuration
+  ingress:
+    enabled: true
+    hostname: tempo.k3d.local # <-- Your desired DNS name
+    # path: /tempo # Optional
+
+
 # ---------------------------
 # Ingress controller
 # ---------------------------
