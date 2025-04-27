@@ -61,3 +61,10 @@ tbp-cluster-stack/
   - helm upgrade tbp-stack ./tbp-cluster-stack
 
 
+# Change hosts file
+- C:\Windows\System32\drivers\etc\hosts
+- 192.168.86.49 grafana.k3d.local
+- 192.168.86.49 prometheus.k3d.local
+- 192.168.86.49 loki.k3d.local
+- 192.168.86.49 tempo.k3d.local
+- NOTE: If the cluster is mapped to host port 8080 and 8443 instead of 80 and 443 (because maybe casaOS is running) you need to add the port to the url as well
