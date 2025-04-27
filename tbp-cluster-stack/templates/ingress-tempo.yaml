@@ -14,6 +14,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: tbp-cluster-stack-tempo
+                name: tbp-stack-tempo
                 port:
                   number: 3200

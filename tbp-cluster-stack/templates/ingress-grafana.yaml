@@ -14,6 +14,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: tbp-cluster-stack-kube-prometheus-stack-grafana
+                name: tbp-stack-grafana
                 port:
                   number: 80

@@ -14,6 +14,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: tbp-cluster-stack-loki-stack
+                name: tbp-stack-loki
                 port:
                   number: 3100
