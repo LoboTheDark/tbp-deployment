@@ -65,7 +65,7 @@ kube-prometheus-stack:
       enabled: false # <-- Important!
     grafanaIni:
       server:
-        serve_from_sub_path: false
+        serve_from_sub_path: true
   prometheus:
     service:
       type: ClusterIP

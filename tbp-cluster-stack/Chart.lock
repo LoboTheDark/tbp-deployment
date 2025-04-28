@@ -1,0 +1,15 @@
+dependencies:
+- name: kube-prometheus-stack
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 70.9.0
+- name: loki-stack
+  repository: https://grafana.github.io/helm-charts
+  version: 2.10.2
+- name: tempo
+  repository: https://grafana.github.io/helm-charts
+  version: 1.21.0
+- name: ingress-nginx
+  repository: https://kubernetes.github.io/ingress-nginx
+  version: 4.10.1
+digest: sha256:b321adf6ea842edddba1b45c9e93b6a800a5b0417bbb1fde2f3d1139926e6023
+generated: "2025-04-27T16:57:01.0083251+02:00"

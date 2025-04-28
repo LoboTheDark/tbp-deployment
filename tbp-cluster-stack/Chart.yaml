@@ -5,6 +5,13 @@ description: "Umbrella Chart: TBP apps + Monitoring (Prometheus, Grafana, Loki, 
 version: 0.1.0
 appVersion: "1.0"
 
+kube-prometheus-stack:
+  installCRDs: true # <-- Stellen Sie sicher, dass dies vorhanden ist
+  grafana:
+    # ... Ihre Grafana Einstellungen
+  prometheus:
+    # ... Ihre Prometheus Einstellungen
+
 dependencies:
   - name: kube-prometheus-stack
     version: "70.9.0"      # Latest available version in prometheus-community repo

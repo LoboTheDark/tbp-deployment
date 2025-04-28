@@ -21,7 +21,7 @@ spec:
           - name: SPRING_PROFILES_ACTIVE
             value: "prod"
           - name: DB_HOST
-            value: "10.43.139.26"
+            value: "postgres"
           - name: DB_PORT
             value: "5432"
           - name: DB_NAME
