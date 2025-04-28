@@ -3,6 +3,8 @@
 - install k3d: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 - create cluster: 
   - k3d cluster create tbp-cluster --api-port 192.168.86.49:6445 --k3s-arg "--tls-san=192.168.86.49@server:0" -p "8080:80@loadbalancer" -p "8443:443@loadbalancer"
+    - alternative, if helm not working to have 50 free ports: k3d cluster create tbp-cluster    --api-port 192.168.86.49:6445    --k3s-arg "--tls-san=192.168.86.49@server:0"    -p "31000-31050:31000-31050@loadbalancer"
+    - you can call auth then via http://192.168.86.49:31000/auth
   - 8080 and 8443 because if it runs on my homeserver port 80 is taken by casaOS
   - Auf windows pc mit docker desktop
     - k3d cluster create tbp-cluster -p "80:80@loadbalancer" -p "443:443@loadbalancer"
