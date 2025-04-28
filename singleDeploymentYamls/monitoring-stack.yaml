@@ -1,0 +1,414 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi # Passt den Speicherbedarf an
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s # Setzt das Standard-Scrape-Intervall auf 15 Sekunden.
+      evaluation_interval: 15s # Evaluierung von Regeln alle 15 Sekunden
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090'] # Prometheus schabt seine eigenen Metriken
+      # Füge hier weitere Scrape-Konfigurationen für deine Anwendungen hinzu
+      # - job_name: 'my-app'
+      #   kubernetes_sd_configs:
+      #     - role: pod
+      #   relabel_configs:
+      #     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+      #       action: keep
+      #       regex: true
+      #     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+      #       action: replace
+      #       target_label: __metrics_path__
+      #       regex: (.+)
+      #     - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+      #       action: replace
+      #       regex: ([^:]+)(?::\d+)?;(\d+)
+      #       replacement: $1:$2
+      #       target_label: __address__
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: quay.io/prometheus/prometheus:v2.48.1 # Aktuelle stabile Version prüfen
+          ports:
+            - containerPort: 9090
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+            - "--web.console.templates=/usr/share/prometheus/consoles"
+            - "--web.enable-lifecycle" # Ermöglicht das Neuladen der Konfiguration ohne Neustart
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus
+            - name: prometheus-storage
+              mountPath: /prometheus
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            name: prometheus-config
+        - name: prometheus-storage
+          persistentVolumeClaim:
+            claimName: prometheus-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loki-pvc
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi # Logs können viel Platz brauchen, anpassen
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app: loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      containers:
+        - name: loki
+          image: grafana/loki:2.9.2 # Aktuelle stabile Version prüfen
+          ports:
+            - containerPort: 3100
+          args:
+            - "-config.file=/etc/loki/loki.yaml" # Standard-Config-Pfad, kann angepasst werden
+          volumeMounts:
+            - name: loki-storage
+              mountPath: /loki
+            # Optional: Mount für eine benutzerdefinierte loki.yaml ConfigMap
+            # - name: loki-config-volume
+            #   mountPath: /etc/loki
+      volumes:
+        - name: loki-storage
+          persistentVolumeClaim:
+            claimName: loki-pvc
+        # Optional: Volume für benutzerdefinierte loki.yaml ConfigMap
+        # - name: loki-config-volume
+        #   configMap:
+        #     name: loki-config # Erstelle eine ConfigMap namens loki-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app: loki
+spec:
+  selector:
+    app: loki
+  ports:
+    - protocol: TCP
+      port: 3100
+      targetPort: 3100
+---
+# Promtail RBAC (für den Zugriff auf Node-Logs)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: promtail
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: promtail-clusterrole
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: promtail-clusterrolebinding
+subjects:
+  - kind: ServiceAccount
+    name: promtail
+    namespace: monitoring
+roleRef:
+  kind: ClusterRole
+  name: promtail-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: promtail-config
+  namespace: monitoring
+data:
+  promtail-config.yaml: |
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+    positions:
+      filename: /tmp/positions.yaml
+    clients:
+      # Loki Service im selben Namespace
+      - url: http://loki:3100/loki/api/v1/push
+    scrape_configs:
+    - job_name: kubernetes-pods
+      pipeline_stages:
+      - docker: {} # Parser für Docker-JSON-Logs
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_node_name]
+        target_label: __host__
+      - source_labels: [__meta_kubernetes_pod_uid]
+        target_label: __path__
+        # Dieser Pfad muss zum tatsächlichen Log-Pfad auf deinem k3d Node passen!
+        # Oft ist es /var/log/pods/<pod-uid>/<container-name>/<logfilename>.log
+        # Oder unter /var/lib/docker/containers/...
+        # Für k3d ist /var/log/pods oft korrekt, aber verifiziere dies.
+        replacement: /var/log/pods/*/$1/*.log # Anpassung kann nötig sein!
+      - source_labels: [__meta_kubernetes_pod_container_name]
+        target_label: container
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: promtail
+  namespace: monitoring
+  labels:
+    app: promtail
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+  template:
+    metadata:
+      labels:
+        app: promtail
+    spec:
+      serviceAccountName: promtail # Verwende das erstellte ServiceAccount
+      containers:
+        - name: promtail
+          image: grafana/promtail:2.9.2 # Aktuelle stabile Version prüfen
+          args:
+            - "-config.file=/etc/promtail/promtail-config.yaml"
+          volumeMounts:
+            - name: promtail-config-volume
+              mountPath: /etc/promtail
+            # Mounten der Node-Log-Pfade
+            # Dies ist kritisch und muss mit der tatsächlichen Struktur auf dem Node übereinstimmen!
+            # Für k3d ist /var/log/pods oft der richtige Ort, aber verifiziere es.
+            # Eventuell auch /var/lib/docker/containers
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            # Benötigt, wenn Journald-Logging verwendet wird oder für bestimmte Discovery
+            - name: machineid
+              mountPath: /etc/machine-id
+              readOnly: true
+            - name: devlog
+              mountPath: /dev/log
+              readOnly: true
+      volumes:
+        - name: promtail-config-volume
+          configMap:
+            name: promtail-config
+        # Host-Pfade mounten, um an die Logs zu kommen
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: machineid
+          hostPath:
+            path: /etc/machine-id
+        - name: devlog
+          hostPath:
+            path: /dev/log
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi # Passt den Speicherbedarf an
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: monitoring
+data:
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus:9090 # Verwendet den Kubernetes Service Namen
+      isDefault: true
+      version: 1
+      editable: true
+  loki.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki:3100 # Verwendet den Kubernetes Service Namen
+      version: 1
+      editable: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  strategy:
+    type: Recreate # Oder RollingUpdate, je nach Bedarf
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.3.3 # Aktuelle stabile Version prüfen
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: admin # Standard-Benutzername
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin # Standard-Passwort - BITTE ÄNDERN!
+            - name: GF_SERVER_ROOT_URL
+              value: http://localhost:3000 # Passt die URL an, wenn du Ingress verwendest
+            - name: GF_PATHS_PROVISIONING
+              value: /etc/grafana/provisioning
+            - name: GF_PATHS_DATA
+              value: /var/lib/grafana
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - name: grafana-storage
+              mountPath: /var/lib/grafana
+            - name: grafana-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+              readOnly: true
+      volumes:
+        - name: grafana-storage
+          persistentVolumeClaim:
+            claimName: grafana-pvc
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  type: NodePort # Macht Grafana über einen Port auf deinem Host zugänglich
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+      # NodePort wird automatisch zugewiesen (meist 30000-32767)
+      nodePort: 31049 # Optional: Spezifischen NodePort festlegen, aber k3d macht das

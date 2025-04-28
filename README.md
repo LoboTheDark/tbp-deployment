@@ -18,6 +18,7 @@
   - kubectl apply -f postgres-deployment.yaml
   - kubectl apply -f postgres-service.yaml
   - kubectl apply -f auth.yml
+  - kubectl apply -f monitoring-stack.yml   
 
 - check if pods and srv are running
   - kubectl get pods
@@ -26,13 +27,14 @@
 - copy cluster config to local config: k3d kubeconfig get tbp-cluster > ~/.kube/config
   - Use this to connecto to cluster via lens or other tools: cat ~/.kube/config
  
-- If everything works, connect to frontend via http://192.168.86.49:8080/
+- If everything works, connect to frontend via http://192.168.86.49:3100/
 
 - Postgres files are saved in hostsystem here:
   - /var/lib/rancher/k3s/storage/
 
+- Grafana can be access via: http://192.168.86.49:31049/ with credentials admin:admin (will be change after first login)
   
-# HELM chart for entire deployment
+# HELM chart for entire deployment (not working yet, nginx shows always 404)
 
 - install helm
 
