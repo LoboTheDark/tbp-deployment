@@ -15,6 +15,7 @@ spec:
       containers:
         - name: auth
           image: ghcr.io/lobothedark/tbp-auth:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           env:
