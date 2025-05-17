@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  eventstore:
+    image: eventstore/eventstore:latest
+    container_name: eventstore
+    ports:
+      - "2113:2113"  # HTTP UI & REST API
+      - "1113:1113"  # gRPC (optional)
+    environment:
+      - EVENTSTORE_INSECURE=true
+      - EVENTSTORE_ENABLE_ATOM_PUB_OVER_HTTP=true
+      - EVENTSTORE_RUN_PROJECTIONS=All
+      - EVENTSTORE_START_STANDARD_PROJECTIONS=true
+    volumes:
+      - eventstore-data:/var/lib/eventstore
+      - eventstore-logs:/var/log/eventstore
+    restart: unless-stopped
+
+volumes:
+  eventstore-data:
+  eventstore-logs:

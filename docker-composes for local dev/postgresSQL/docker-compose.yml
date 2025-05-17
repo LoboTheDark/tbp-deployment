@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17.4
+    container_name: postgres_local
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres         # Benutzername des Superusers
+      POSTGRES_PASSWORD: i*DV5-E.UM6YB_~}-TcP39TRbseZ3R~R   # Passwort für den Superuser
+      POSTGRES_DB: tbp_user
+    volumes:
+      - E:/download/postgresSQL/data:/var/lib/postgresql/data
